@@ -17,6 +17,20 @@ export default function BarcodeScanner({ onDetected, onError }: Props) {
   useEffect(() => {
     const reader = new BrowserMultiFormatReader()
 
+    const originalConsoleError = console.error
+    console.error = (...args: unknown[]) => {
+      const msg = args[0]?.toString() ?? ''
+      if (
+        msg.includes('MultiFormatReader') ||
+        msg.includes('NotFoundException') ||
+        msg.includes('ChecksumException') ||
+        msg.includes('non-ReaderException')
+      ) {
+        return
+      }
+      originalConsoleError.apply(console, args)
+    }
+
     const startScanning = async () => {
       try {
         const devices = await BrowserMultiFormatReader.listVideoInputDevices()
@@ -38,7 +52,7 @@ export default function BarcodeScanner({ onDetected, onError }: Props) {
         const controls = await reader.decodeFromVideoDevice(
           backCamera.deviceId,
           videoRef.current!,
-          (result) => {
+          (result, error) => {
             if (result) {
               onDetected(result.getText())
             }
@@ -55,6 +69,7 @@ export default function BarcodeScanner({ onDetected, onError }: Props) {
 
     return () => {
       controlsRef.current?.stop()
+      console.error = originalConsoleError
     }
   }, [onDetected, onError])
 

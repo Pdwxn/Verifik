@@ -41,7 +41,13 @@ function NutritionSection({ product }: { product: IProduct }) {
 
 export default async function ProductPage({ params }: Props) {
   const { barcode } = await params
-  const product = await getProductByBarcode(barcode)
+
+  let product: IProduct | null
+  try {
+    product = await getProductByBarcode(barcode)
+  } catch {
+    product = null
+  }
   if (!product) notFound()
 
   const isFood = product.productType === 'food' || product.productType === 'beverage'
