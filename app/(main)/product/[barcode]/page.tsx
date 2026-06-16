@@ -21,7 +21,9 @@ function NutritionSection({ product }: { product: IProduct }) {
     { label: 'Sal', value: facts.salt, unit: 'g' },
     { label: 'Fibra', value: facts.fiber, unit: 'g' },
     { label: 'Proteínas', value: facts.protein, unit: 'g' },
-  ].filter(i => i.value !== undefined)
+  ]
+    .filter(i => i.value !== undefined)
+    .map(i => ({ ...i, value: Math.round(i.value!) }))
 
   return (
     <section className="bg-white rounded-2xl p-4 shadow-sm">
